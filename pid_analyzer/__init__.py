@@ -974,8 +974,8 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-l', '--log', action='append',
-        help='BBL log file(s) to analyse. Omit for interactive prompt.')
+        'log', action='append',
+        help='BBL log file(s) to analyse. Omit for interactive prompt.', nargs='?')
     parser.add_argument('-n', '--name', default='tmp', help='Plot name.')
     parser.add_argument(
         '--blackbox_decode',
@@ -1001,6 +1001,7 @@ def main():
 
     logging.info(Version)
     logging.info('Hello Pilot!')
+    args.log = [l for l in args.log if l]
 
     if args.log:
         for log_path in args.log:
