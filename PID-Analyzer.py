@@ -54,7 +54,7 @@ class Trace:
 
         self.gyro = self.data['gyro']
         self.throttle = self.data['throttle']
-        self.throt_hist, self.throt_scale = np.histogram(self.throttle, np.linspace(0, 100, 101, dtype=np.float64), normed=True)
+        self.throt_hist, self.throt_scale = np.histogram(self.throttle / np.linalg.norm(self.throttle), np.linspace(0, 100, 101, dtype=np.float64))
 
         self.flen = self.stepcalc(self.time, Trace.framelen)        # array len corresponding to framelen in s
         self.rlen = self.stepcalc(self.time, Trace.resplen)         # array len corresponding to resplen in s
@@ -270,7 +270,7 @@ class Trace:
 
         hist2d = np.histogram2d(throts.flatten(), freqs.flatten(),
                                 range=[[0, 100], [y[0], y[-1]]],
-                                bins=bins, weights=weights.flatten(), normed=False)[0].transpose()
+                                bins=bins, weights=weights.flatten())[0].transpose()
 
         hist2d = np.array(abs(hist2d), dtype=np.float64)
         hist2d_norm = np.copy(hist2d)
@@ -291,7 +291,7 @@ class Trace:
         weights = abs(spec.real)
         avr_thr = np.abs(thr).max(axis=1)
 
-        hist2d=self.hist2d(avr_thr, freq,weights,[101,len(freq)/4])
+        hist2d=self.hist2d(avr_thr, freq,weights,[101,int(len(freq)/4)])
 
         filt_width = 3  # width of gaussian smoothing for hist data
         hist2d_sm = gaussian_filter1d(hist2d['hist2d_norm'], filt_width, axis=1, mode='constant')
@@ -618,7 +618,7 @@ class CSV_log:
                 ###response vs throttle plot. more useful.
                 ax2 = plt.subplot(gs1[9:16, i * 10:i * 10 + 9])
                 plt.title(tr.name + ' response', y=0.88, color='w')
-                plt.pcolormesh(tr.thr_response['throt_scale'], tr.time_resp, tr.thr_response['hist2d_norm'], vmin=0., vmax=2.)
+                plt.pcolormesh(tr.thr_response['throt_scale'][1:], tr.time_resp, tr.thr_response['hist2d_norm'], vmin=0., vmax=2.)
                 plt.ylabel('response time in s')
                 ax2.get_yaxis().set_label_coords(-0.1, 0.5)
                 plt.xlabel('throttle in %')
