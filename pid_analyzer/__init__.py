@@ -956,8 +956,18 @@ def strip_quotes(filepath):
 def clean_path(path):
     return os.path.abspath(os.path.expanduser(strip_quotes(path)))
 
+def find_bbdec_path() -> str:
+    bb = 'blackbox_decode' if os.name == 'posix' else 'Blackbox_decode.exe'
+    bb_paths = [os.getcwd()] + os.getenv('PATH', '').split(':')
+    for p in bb_paths:
+        fp = os.path.join(p, bb)
+        if os.path.exists(fp):
+            bb = fp
+            break
+    return bb
 
 def main():
+    bb_dec_bin = find_bbdec_path()
     logging.basicConfig(
         format='%(levelname)s %(asctime)s %(filename)s:%(lineno)s: %(message)s',
         level=logging.INFO)
@@ -969,8 +979,8 @@ def main():
     parser.add_argument('-n', '--name', default='tmp', help='Plot name.')
     parser.add_argument(
         '--blackbox_decode',
-        default=os.path.join(os.getcwd(), 'Blackbox_decode.exe'),
-        help='Path to Blackbox_decode.exe.')
+        default=bb_dec_bin,
+        help='Path to %s.'%bb_dec_bin)
     parser.add_argument('-s', '--show', default='Y', help='Y = show plot window when done.\nN = Do not. \nDefault = Y')
     parser.add_argument('-nb', '--noise_bounds', default='[[1.,10.1],[1.,100.],[1.,100.],[0.,4.]]', help='bounds of plots in noise analysis. use "auto" for autoscaling. \n default=[[1.,10.1],[1.,100.],[1.,100.],[0.,4.]]')
     args = parser.parse_args()
@@ -983,10 +993,10 @@ def main():
         args.noise_bounds = args.noise_bounds
     if not os.path.isfile(blackbox_decode_path):
         parser.error(
-            ('Could not find Blackbox_decode.exe (used to generate CSVs from '
+            ('Could not find %s (used to generate CSVs from '
              'your BBL file) at %s. You may need to install it from '
              'https://github.com/cleanflight/blackbox-tools/releases.')
-            % blackbox_decode_path)
+            % (bb_dec_bin, blackbox_decode_path))
     logging.info('Decoding with %r' % blackbox_decode_path)
 
     logging.info(Version)
@@ -1000,8 +1010,6 @@ def main():
         else:
             plt.cla()
             plt.clf()
-
-
     else:
         while True:
             logging.info('Interactive mode: Enter log file, or type close when done.')
