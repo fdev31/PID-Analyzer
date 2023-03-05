@@ -24,7 +24,7 @@ from six.moves import input as sinput
 # ----------------------------------------------------------------------------------
 
 
-Version = 'PID-Analyzer 0.52'
+Version = 'PID-Analyzer 0.53'
 
 LOG_MIN_BYTES = 500000
 
@@ -957,7 +957,7 @@ def clean_path(path):
     return os.path.abspath(os.path.expanduser(strip_quotes(path)))
 
 
-if __name__ == "__main__":
+def main():
     logging.basicConfig(
         format='%(levelname)s %(asctime)s %(filename)s:%(lineno)s: %(message)s',
         level=logging.INFO)
@@ -1040,3 +1040,6 @@ if __name__ == "__main__":
             else:
                 plt.cla()
                 plt.clf()
+
+if __name__ == "__main__":
+    main()
